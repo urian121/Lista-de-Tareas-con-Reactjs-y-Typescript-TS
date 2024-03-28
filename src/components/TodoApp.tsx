@@ -9,12 +9,18 @@ interface Tarea {
 
 export const TodoApp = () => {
   const [nuevaTarea, setNuevaTarea] = useState<string>("");
-  const [prioridadTarea, setPrioridadTarea] = useState<string>("alta"); // Prioridad por defecto
+  const [prioridadTarea, setPrioridadTarea] = useState<string>(""); // Prioridad por defecto
   const [listaTareas, setListaTareas] = useState<Tarea[]>([]);
   const [taskSeleccionada, setTaskSeleccionada] = useState<Tarea | null>(null);
   const [editando, setEditando] = useState<boolean>(false);
 
-  const handleAddTask = () => {
+  /**
+   * Al especificar React.FormEvent<HTMLFormElement> como el tipo del evento e, estás indicando que e es un evento
+   * de formulario y proporciona acceso a las propiedades y métodos asociados con los formularios HTML.
+   */
+  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (nuevaTarea.trim() === "") {
       toast.error("La tarea no puede estar vacía");
       return;
@@ -31,6 +37,7 @@ export const TodoApp = () => {
     ]);
     toast.success("Tarea agregada correctamente");
     setNuevaTarea("");
+    setPrioridadTarea("");
   };
 
   const handleBorrarTarea = (index: number) => {
@@ -42,13 +49,20 @@ export const TodoApp = () => {
   const handleSeleccionarTarea = (index: number) => {
     setEditando(true);
     const selectedTask = listaTareas[index];
+    //console.log(index);
+    //console.log(selectedTask);
+    //console.log(selectedTask.nombre);
+    setNuevaTarea(selectedTask.nombre);
+    setPrioridadTarea(selectedTask.prioridad);
     setTaskSeleccionada(selectedTask);
   };
 
-  const handleEditarTarea = () => {
-    if (!taskSeleccionada) return; // No hay tarea seleccionada para editar
+  const handleEditarTarea = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    // Actualizar los detalles de la tarea seleccionada con los valores editados
+    console.log(taskSeleccionada);
+
+    // Crear una nueva tarea con los valores editados
     const updatedTask = {
       ...taskSeleccionada,
       nombre: nuevaTarea,
@@ -59,11 +73,15 @@ export const TodoApp = () => {
     const updatedTasks = listaTareas.map((task) =>
       task === taskSeleccionada ? updatedTask : task
     );
+
+    //console.log(updatedTasks); // Imprime la lista de tareas actualizada
     setListaTareas(updatedTasks);
 
-    // Limpiar la tarea seleccionada y desactivar el modo de edición
     setTaskSeleccionada(null);
     setEditando(false);
+    setNuevaTarea("");
+    setPrioridadTarea("");
+    toast.success("Tarea editada correctamente");
   };
 
   return (
@@ -79,42 +97,40 @@ export const TodoApp = () => {
             marginTop: "50px",
             borderRight: "1px solid #666",
           }}>
-          <div className="mb-3">
-            <label htmlFor="nuevaTarea" className="form-label">
-              Tarea
-            </label>
-            <input
-              className="form-control"
-              type="text"
-              value={editando ? taskSeleccionada?.nombre : nuevaTarea}
-              onChange={(e) => setNuevaTarea(e.target.value)}
-              placeholder="Nueva Tarea"
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="prioridadTarea" className="form-label">
-              Tipo de prioridad
-            </label>
-            <select
-              value={editando ? taskSeleccionada?.prioridad : prioridadTarea}
-              onChange={(e) => setPrioridadTarea(e.target.value)}
-              className="form-control">
-              <option value="">Seleccione</option>
-              <option value="alta">Alta</option>
-              <option value="media">Media</option>
-              <option value="baja">Baja</option>
-            </select>
-          </div>
+          <form onSubmit={editando ? handleEditarTarea : handleAddTask}>
+            <div className="mb-3">
+              <label htmlFor="nuevaTarea" className="form-label">
+                Tarea
+              </label>
+              <input
+                className="form-control"
+                type="text"
+                value={nuevaTarea}
+                onChange={(e) => setNuevaTarea(e.target.value)}
+                placeholder="Nueva Tarea"
+              />
+            </div>
+            <div className="mb-3">
+              <label htmlFor="prioridadTarea" className="form-label">
+                Tipo de prioridad
+              </label>
+              <select
+                value={prioridadTarea}
+                onChange={(e) => setPrioridadTarea(e.target.value)}
+                className="form-control">
+                <option value="">Seleccione</option>
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="baja">Baja</option>
+              </select>
+            </div>
 
-          <div className="d-grid gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                editando ? handleEditarTarea() : handleAddTask()
-              }>
-              {editando ? "Editar Tarea" : "Agregar Tarea"}
-            </button>
-          </div>
+            <div className="d-grid gap-2">
+              <button className="btn btn-primary" type="submit">
+                {editando ? "Editar Tarea" : "Agregar Tarea"}
+              </button>
+            </div>
+          </form>
         </div>
 
         <div className="col-md-7">
