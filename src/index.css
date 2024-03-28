@@ -21,8 +21,14 @@ a:hover {
   margin: 10px;
   border-radius: 5px;
 }
+.taskList {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 20px 0;
+}
+
 .titulo {
-  font-family: "Tauri", sans-serif;
   font-size: 45px;
   color: #535bf2;
   font-weight: 900;

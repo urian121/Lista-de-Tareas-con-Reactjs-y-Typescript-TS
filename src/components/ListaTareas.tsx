@@ -8,9 +8,14 @@ export interface Tarea {
 interface ListaTareasProps {
   listaTareas: Tarea[];
   borrarTarea: (index: number) => void;
+  seleccionarTarea: (index: number) => void;
 }
 
-export const ListaTareas = ({ listaTareas, borrarTarea }: ListaTareasProps) => {
+export const ListaTareas = ({
+  listaTareas,
+  borrarTarea,
+  seleccionarTarea,
+}: ListaTareasProps) => {
   return (
     <div className="taskList">
       {listaTareas.map((tarea, index) => (
@@ -19,6 +24,7 @@ export const ListaTareas = ({ listaTareas, borrarTarea }: ListaTareasProps) => {
           tarea={tarea.nombre}
           prioridad={tarea.prioridad}
           borrarTarea={() => borrarTarea(index)}
+          seleccionarTarea={() => seleccionarTarea(index)}
         />
       ))}
     </div>

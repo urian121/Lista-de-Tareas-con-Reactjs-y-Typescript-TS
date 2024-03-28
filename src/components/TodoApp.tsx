@@ -11,6 +11,8 @@ export const TodoApp = () => {
   const [nuevaTarea, setNuevaTarea] = useState<string>("");
   const [prioridadTarea, setPrioridadTarea] = useState<string>("alta"); // Prioridad por defecto
   const [listaTareas, setListaTareas] = useState<Tarea[]>([]);
+  const [taskSeleccionada, setTaskSeleccionada] = useState<Tarea | null>(null);
+  const [editando, setEditando] = useState<boolean>(false);
 
   const handleAddTask = () => {
     if (nuevaTarea.trim() === "") {
@@ -37,6 +39,33 @@ export const TodoApp = () => {
     toast.error("Tarea borrada correctamente");
   };
 
+  const handleSeleccionarTarea = (index: number) => {
+    setEditando(true);
+    const selectedTask = listaTareas[index];
+    setTaskSeleccionada(selectedTask);
+  };
+
+  const handleEditarTarea = () => {
+    if (!taskSeleccionada) return; // No hay tarea seleccionada para editar
+
+    // Actualizar los detalles de la tarea seleccionada con los valores editados
+    const updatedTask = {
+      ...taskSeleccionada,
+      nombre: nuevaTarea,
+      prioridad: prioridadTarea,
+    };
+
+    // Actualizar la lista de tareas con la tarea editada
+    const updatedTasks = listaTareas.map((task) =>
+      task === taskSeleccionada ? updatedTask : task
+    );
+    setListaTareas(updatedTasks);
+
+    // Limpiar la tarea seleccionada y desactivar el modo de edición
+    setTaskSeleccionada(null);
+    setEditando(false);
+  };
+
   return (
     <div>
       <ToastContainer />
@@ -57,7 +86,7 @@ export const TodoApp = () => {
             <input
               className="form-control"
               type="text"
-              value={nuevaTarea}
+              value={editando ? taskSeleccionada?.nombre : nuevaTarea}
               onChange={(e) => setNuevaTarea(e.target.value)}
               placeholder="Nueva Tarea"
             />
@@ -67,7 +96,7 @@ export const TodoApp = () => {
               Tipo de prioridad
             </label>
             <select
-              value={prioridadTarea}
+              value={editando ? taskSeleccionada?.prioridad : prioridadTarea}
               onChange={(e) => setPrioridadTarea(e.target.value)}
               className="form-control">
               <option value="">Seleccione</option>
@@ -78,8 +107,12 @@ export const TodoApp = () => {
           </div>
 
           <div className="d-grid gap-2">
-            <button className="btn btn-primary" onClick={handleAddTask}>
-              Agregar Tarea
+            <button
+              className="btn btn-primary"
+              onClick={() =>
+                editando ? handleEditarTarea() : handleAddTask()
+              }>
+              {editando ? "Editar Tarea" : "Agregar Tarea"}
             </button>
           </div>
         </div>
@@ -88,6 +121,7 @@ export const TodoApp = () => {
           <ListaTareas
             listaTareas={listaTareas}
             borrarTarea={handleBorrarTarea}
+            seleccionarTarea={handleSeleccionarTarea}
           />
         </div>
       </div>
